@@ -1,26 +1,23 @@
 #!/system/bin/sh
-# 开机自启与定时任务守护
+# FCM Hosts Autopilot
 
-# 核心脚本的唯一绝对路径
-UPDATE_CMD="/data/adb/fcm-hosts/bin/fcm-update"
+UPDATE_CMD="/system/bin/fcm-update"
+INTERVAL=21600 # 6小时更新一次
 
-# 1. 等待网络 (最长等待 60s)
-wait_count=0
-while ! ping -c 1 -W 1 223.5.5.5 >/dev/null 2>&1; do
-    sleep 2
-    wait_count=$((wait_count + 1))
-    if [ $wait_count -ge 30 ]; then break; fi
-done
+(
+    # A. 等待系统完全启动
+    until [ "$(getprop sys.boot_completed)" = "1" ]; do
+        sleep 5
+    done
+    
+    # B. 额外宽限 30s 确保网络栈就绪
+    sleep 30
 
-# 2. 开机立即执行一次更新 (静默)
-if [ -x "$UPDATE_CMD" ]; then
-    nohup "$UPDATE_CMD" >/dev/null 2>&1 &
-fi
-
-# 3. 定时更新 (每小时)
-while true; do
-    sleep 3600
-    if [ -x "$UPDATE_CMD" ]; then
-        "$UPDATE_CMD" >/dev/null 2>&1
-    fi
-done
+    while true; do
+        # 直接执行，fcm-update 内部自带网络校验和错误处理
+        if [ -x "$UPDATE_CMD" ]; then
+            "$UPDATE_CMD" >/dev/null 2>&1
+        fi
+        sleep "$INTERVAL"
+    done
+) &
