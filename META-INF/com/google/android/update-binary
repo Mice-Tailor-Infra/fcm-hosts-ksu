@@ -1,24 +1,18 @@
 #!/system/bin/sh
-# Magisk Module Installer
-# Standard update-binary for Magisk/KSU modules
+# Standard Shell update-binary for Magisk/KSU
 
+# 参数: $1=API等级, $2=模块路径(MODPATH), $3=ZIP文件路径
 umask 022
 
-# Current dir
-cd "$(dirname "$0")"
+MODPATH="$2"
+ZIPFILE="$3"
 
-# Load utility functions
-if [ -f "common_functions.sh" ]; then
-    . common_functions.sh
+# 强制解压
+unzip -o "$ZIPFILE" -d "$MODPATH" >&2
+
+# 执行自定义逻辑
+if [ -f "$MODPATH/customize.sh" ]; then
+    chmod 755 "$MODPATH/customize.sh"
+    cd "$MODPATH"
+    sh "$MODPATH/customize.sh"
 fi
-
-# Default installation functions
-install_module() {
-    # Copy module files
-    if [ -f "customize.sh" ]; then
-        sh customize.sh
-    fi
-}
-
-# Run installation
-install_module
