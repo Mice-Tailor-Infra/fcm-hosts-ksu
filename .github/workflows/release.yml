@@ -1,0 +1,55 @@
+name: Build & Release
+
+on:
+  workflow_dispatch:
+  push:
+    branches: ["main"]
+    paths:
+      - "customize.sh"
+      - "service.sh"
+      - "module.prop"
+      - "system/bin/**"
+      - ".github/workflows/release.yml"
+      - "CHANGELOG.md"
+
+env:
+  REPO_NAME: cagedbird043/fcm-hosts-ksu
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Prepare version info
+        run: |
+          BASE_VER=$(grep "^version=" module.prop | cut -d= -f2 | sed 's/\${DISPLAY_VER}//' | xargs)
+          echo "BASE_VER=$BASE_VER" >> $GITHUB_ENV
+          V_CODE=$(date +%Y%m%d%H)
+          echo "V_CODE=$V_CODE" >> $GITHUB_ENV
+          echo "Updating module.prop..."
+          sed -i "s/\${DISPLAY_VER}/$BASE_VER/" module.prop
+          sed -i "s/\${V_CODE}/$V_CODE/" module.prop
+
+      - name: Build module zip
+        run: |
+          zip -r fcm-hosts-ksu-${BASE_VER}.zip .
+
+      - name: Create Release
+        uses: softprops/action-gh-release@v1
+        with:
+          files: fcm-hosts-ksu-${BASE_VER}.zip
+          body_path: CHANGELOG.md
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Update OTA
+        run: |
+          # 更新 update.json 并 commit
+          sed -i "s/\${DISPLAY_VER}/${{ env.BASE_VER }}/g" update.json
+          sed -i "s/\${V_CODE}/${{ env.V_CODE }}/g" update.json
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add update.json
+          git commit -m "chore: bump version to ${{ env.BASE_VER }}" || true
+          git push

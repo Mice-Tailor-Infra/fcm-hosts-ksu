@@ -1,0 +1,24 @@
+#!/system/bin/sh
+# Magisk Module Installer
+# Standard update-binary for Magisk/KSU modules
+
+umask 022
+
+# Current dir
+cd "$(dirname "$0")"
+
+# Load utility functions
+if [ -f "common_functions.sh" ]; then
+    . common_functions.sh
+fi
+
+# Default installation functions
+install_module() {
+    # Copy module files
+    if [ -f "customize.sh" ]; then
+        sh customize.sh
+    fi
+}
+
+# Run installation
+install_module

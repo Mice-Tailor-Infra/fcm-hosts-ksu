@@ -1,0 +1,6 @@
+{
+  "version": "${DISPLAY_VER}",
+  "versionCode": "${V_CODE}",
+  "zipUrl": "https://github.com/cagedbird043/fcm-hosts-ksu/releases/latest/download/fcm-hosts-ksu-${DISPLAY_VER}.zip",
+  "changelog": "https://raw.githubusercontent.com/cagedbird043/fcm-hosts-ksu/main/CHANGELOG.md"
+}

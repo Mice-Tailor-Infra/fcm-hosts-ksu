@@ -1,0 +1,41 @@
+#!/system/bin/sh
+set -e
+
+REMOTE_URL="https://miceworld.top/fcm-hosts-next/fcm_dual.hosts"
+LOCAL_TARGET="/data/adb/fcm-hosts/hosts"
+TMP_FILE="/data/adb/fcm-hosts/hosts.tmp.$$"
+TIMESTAMP=$(date +%s)
+
+# 下载远程文件
+curl -kfsSL --connect-timeout 10 --max-time 60 \
+    "${REMOTE_URL}?t=${TIMESTAMP}" -o "$TMP_FILE" || {
+    rm -f "$TMP_FILE"
+    exit 1
+}
+
+# Localhost 保护
+if [ -f "$LOCAL_TARGET" ]; then
+    # 保留原有 localhost 定义
+    grep -E "^(127\.0\.0\.1|::1)\s+localhost" "$LOCAL_TARGET" > "$TMP_FILE.host" 2>/dev/null || true
+else
+    echo "127.0.0.1 localhost" > "$TMP_FILE.host"
+    echo "::1 localhost" >> "$TMP_FILE.host"
+fi
+
+# 追加远程内容
+cat "$TMP_FILE" >> "$TMP_FILE.host"
+
+# 校验
+if ! grep -q "google" "$TMP_FILE.host"; then
+    rm -f "$TMP_FILE.host" "$TMP_FILE"
+    exit 1
+fi
+
+# 权限修复
+if [ -f /system/etc/hosts ]; then
+    chcon --reference /system/etc/hosts "$TMP_FILE.host"
+fi
+
+# 原子替换
+mv -f "$TMP_FILE.host" "$LOCAL_TARGET"
+rm -f "$TMP_FILE"
