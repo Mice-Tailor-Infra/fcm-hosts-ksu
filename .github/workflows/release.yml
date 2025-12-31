@@ -32,9 +32,11 @@ jobs:
           echo "ZIP_NAME=fcm-hosts-ksu-${BASE_VER}.zip" >> $GITHUB_ENV
           V_CODE=$(date +%Y%m%d%H)
           echo "V_CODE=$V_CODE" >> $GITHUB_ENV
-          echo "Updating module.prop..."
+          echo "Updating module.prop files..."
           sed -i "s/\${DISPLAY_VER}/$BASE_VER/" module.prop
           sed -i "s/\${V_CODE}/$V_CODE/" module.prop
+          sed -i "s/\${DISPLAY_VER}/$BASE_VER/" META-INF/com/google/android/module.prop
+          sed -i "s/\${V_CODE}/$V_CODE/" META-INF/com/google/android/module.prop
 
       - name: Build module zip
         run: |
