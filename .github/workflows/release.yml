@@ -12,6 +12,9 @@ on:
       - ".github/workflows/release.yml"
       - "CHANGELOG.md"
 
+permissions:
+  contents: write
+
 env:
   REPO_NAME: cagedbird043/fcm-hosts-ksu
 
@@ -23,8 +26,9 @@ jobs:
 
       - name: Prepare version info
         run: |
-          BASE_VER=$(grep "^version=" module.prop | cut -d= -f2 | sed 's/\${DISPLAY_VER}//' | xargs)
+          BASE_VER=$(grep "^version=" module.prop | cut -d= -f2 | sed 's/\${DISPLAY_VER}//' | head -1)
           echo "BASE_VER=$BASE_VER" >> $GITHUB_ENV
+          echo "ZIP_NAME=fcm-hosts-ksu-${BASE_VER}.zip" >> $GITHUB_ENV
           V_CODE=$(date +%Y%m%d%H)
           echo "V_CODE=$V_CODE" >> $GITHUB_ENV
           echo "Updating module.prop..."
@@ -33,13 +37,15 @@ jobs:
 
       - name: Build module zip
         run: |
-          zip -r fcm-hosts-ksu-${BASE_VER}.zip .
+          echo "BASE_VER: ${{ env.BASE_VER }}"
+          echo "ZIP_NAME: ${{ env.ZIP_NAME }}"
+          zip -r "${{ env.ZIP_NAME }}" .
 
       - name: Create Release
         uses: softprops/action-gh-release@v2
         with:
           tag_name: ${{ env.BASE_VER }}
-          files: fcm-hosts-ksu-${BASE_VER}.zip
+          files: ${{ env.ZIP_NAME }}
           body_path: CHANGELOG.md
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
