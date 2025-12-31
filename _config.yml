@@ -1,0 +1,8 @@
+# GitHub Pages Configuration
+# Minimal config to prevent CI failures
+
+title: FCM Hosts KSU Module
+description: Systemless hosts via symlink strategy. Auto-syncs with cloud IP pool.
+
+# Disable Jekyll default processing
+plugins: []
