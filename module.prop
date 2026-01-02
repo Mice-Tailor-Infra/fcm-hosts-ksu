@@ -3,5 +3,5 @@ name=FCM Hosts Optimizer
 version=v2.0.0
 versionCode=${V_CODE}
 author=cagedbird043
-description=Systemless hosts via symlink strategy. Managed by Project Mjolnir.
+description=Systemless hosts managed by MiceTimer. High-frequency sync via Mice-Tailor-Infra factory.
 updateJson=https://miceworld.top/fcm-hosts-ksu/update.json
