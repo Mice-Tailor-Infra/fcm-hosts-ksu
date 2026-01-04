@@ -35,6 +35,8 @@ jobs:
           echo "Updating module.prop..."
           sed -i "s/\${DISPLAY_VER}/$BASE_VER/" module.prop
           sed -i "s/\${V_CODE}/$V_CODE/" module.prop
+          # Add timestamp to updateJson in module.prop to bust cache
+          sed -i "s|update.json|update.json?t=$V_CODE|" module.prop
 
       - name: Extract Release Notes
         run: |
@@ -74,6 +76,8 @@ jobs:
         run: |
           sed -i "s/\${DISPLAY_VER}/${{ env.BASE_VER }}/g" update.json
           sed -i "s/\${V_CODE}/${{ env.V_CODE }}/g" update.json
+          # Add timestamp to changelog URL in update.json
+          sed -i "s|CHANGELOG.md|CHANGELOG.md?t=${{ env.V_CODE }}|g" update.json
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
           git add update.json
