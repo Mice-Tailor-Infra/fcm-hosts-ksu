@@ -16,6 +16,13 @@ ui_print "- 正在初始化 FCM Hosts 工作空间..."
 mkdir -p "$BIN_DIR"
 mkdir -p "$TIMER_DIR"
 
+# [Critical] 强制清理模块内的 system/etc/hosts
+# 防止覆盖安装时残留软链接，导致 service.sh 中的 bind mount 跟随链接失效
+if [ -d "$MODPATH/system/etc" ]; then
+    ui_print "- 清理旧版架构..."
+    rm -rf "$MODPATH/system/etc"
+fi
+
 # 1. 部署执行脚本到数据分区
 if [ -f "$MODPATH/bin/fcm-update" ]; then
     ui_print "- 部署更新脚本..."

@@ -1,3 +1,7 @@
+## v2.1.1
+
+- **修复**: 在安装脚本 (`customize.sh`) 中强制删除模块内的 `system/etc/hosts`，防止覆盖安装时软链接残留导致 Bind Mount 依然被重定向的问题。
+
 ## v2.1.0
 
 - **修复**: 切换为 Bind Mount (挂载) 策略，解决非 Root 应用因 `/data/adb` 权限无法读取 hosts 的问题。
