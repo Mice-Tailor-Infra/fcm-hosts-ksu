@@ -24,6 +24,9 @@
 ```bash
 # 手动强制更新 FCM 库
 /system/bin/fcm-update
+
+# 自测 FCM 连通性
+/system/bin/fcm-test
 ```
 
 ## ⚙️ 配置说明

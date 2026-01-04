@@ -46,13 +46,15 @@ rm -f "$MOD_SYSTEM_ETC/hosts"
 ln -f "$HOSTS_FILE" "$MOD_SYSTEM_ETC/hosts"
 
 # 1. 部署执行脚本到数据分区
-if [ -f "$MODPATH/bin/fcm-update" ]; then
-    ui_print "- 部署更新脚本..."
-    mv -f "$MODPATH/bin/fcm-update" "$BIN_DIR/fcm-update"
-    chmod 755 "$BIN_DIR/fcm-update"
-    # 删除模块内的 bin 目录，改用 system/bin 下的软链接（在 git 中已定义）
-    rm -rf "$MODPATH/bin"
-fi
+for bin_file in fcm-update fcm-test; do
+    if [ -f "$MODPATH/bin/$bin_file" ]; then
+        ui_print "- 部署 $bin_file 脚本..."
+        mv -f "$MODPATH/bin/$bin_file" "$BIN_DIR/$bin_file"
+        chmod 755 "$BIN_DIR/$bin_file"
+    fi
+done
+# 清理模块内 bin 目录
+rm -rf "$MODPATH/bin"
 
 # 2. 部署定时器配置文件
 if [ -f "$MODPATH/fcm-hosts.toml" ]; then
@@ -66,6 +68,7 @@ if [ -x "$(command -v chcon)" ]; then
     # 显式使用 system_file 标签，确保普通 App 在任何挂载方式下都有权读取
     # 优先参考系统 bin 目录，因为它的标签几乎在所有 Android 版本上都是可读的
     chcon --reference /system/bin/sh "$BIN_DIR/fcm-update" 2>/dev/null || chcon u:object_r:system_file:s0 "$BIN_DIR/fcm-update" 2>/dev/null || true
+    chcon --reference /system/bin/sh "$BIN_DIR/fcm-test" 2>/dev/null || chcon u:object_r:system_file:s0 "$BIN_DIR/fcm-test" 2>/dev/null || true
     chcon --reference /system/bin/sh "$HOSTS_FILE" 2>/dev/null || chcon u:object_r:system_file:s0 "$HOSTS_FILE" 2>/dev/null || true
     chcon --reference /system/bin/sh "$MOD_SYSTEM_ETC/hosts" 2>/dev/null || chcon u:object_r:system_file:s0 "$MOD_SYSTEM_ETC/hosts" 2>/dev/null || true
 fi

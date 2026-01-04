@@ -1,0 +1,42 @@
+#!/system/bin/sh
+# Project Mjolnir - FCM Hosts Connectivity Tester
+# Created by Antigravity AI
+
+DOMAINS="mtalk.google.com alt1-mtalk.google.com alt2-mtalk.google.com alt3-mtalk.google.com alt4-mtalk.google.com alt5-mtalk.google.com alt6-mtalk.google.com alt7-mtalk.google.com alt8-mtalk.google.com"
+PORT=5228
+
+echo "--- [ FCM Connectivity Test / FCM 连接自测 ] ---"
+echo "Checking port $PORT... / 正在检测 $PORT 端口..."
+echo "-----------------------------------------------"
+
+success_count=0
+total_count=0
+
+for domain in $DOMAINS; do
+    total_count=$((total_count + 1))
+    
+    # Get IP address using ping (simple and cross-platform)
+    ip_raw=$(ping -c 1 -W 1 "$domain" 2>/dev/null | head -n 1)
+    ip=$(echo "$ip_raw" | grep -oE "[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+" | head -n 1)
+    
+    # Connectivity test using toybox nc
+    nc -z -w 3 "$domain" "$PORT" >/dev/null 2>&1
+    if [ $? -eq 0 ]; then
+        printf " ✅ %-25s | ONLINE  | %s\n" "$domain" "$ip"
+        success_count=$((success_count + 1))
+    else
+        printf " ❌ %-25s | OFFLINE | %s\n" "$domain" "$ip"
+    fi
+done
+
+echo "-----------------------------------------------"
+echo "Summary: $success_count/$total_count domains reachable. / 总结：$success_count/$total_count 域名可达。"
+
+if [ $success_count -eq 0 ]; then
+    echo "Critical: All FCM nodes unreachable. Check your proxy/network. / 严重：所有节点均不可达，请检查网络或魔法设置。"
+elif [ $success_count -lt 4 ]; then
+    echo "Warning: Only few nodes are reachable. Potential network instability. / 警告：仅少量节点可达，可能存在网络波动。"
+else
+    echo "FCM connection is healthy! / FCM 连接状态良好！"
+fi
+echo "--- [ End of Test / 测试结束 ] ---"

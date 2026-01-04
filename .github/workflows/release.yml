@@ -61,7 +61,9 @@ jobs:
             uninstall.sh \
             fcm-hosts.toml \
             bin/fcm-update \
+            bin/fcm-test \
             system/bin/fcm-update \
+            system/bin/fcm-test \
             system/etc/hosts
 
       - name: Create Release
