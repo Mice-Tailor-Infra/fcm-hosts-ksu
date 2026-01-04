@@ -34,8 +34,10 @@ if [ -x "$(command -v chcon)" ]; then
     chcon --reference /system/etc/hosts "$TMP_FILE" 2>/dev/null || true
 fi
 
-# 5. 原子替换
-mv -f "$TMP_FILE" "$TARGET_FILE"
-rm -f "$TMP_FILE.download"
+# 5. 原地写入 (保持 Bind Mount 有效)
+    # 不使用 mv，因为 mv 会改变 inode，导致挂载失效
+    cat "$TMP_FILE" > "$TARGET_FILE"
+    rm -f "$TMP_FILE"
+    rm -f "$TMP_FILE.download"
 
 echo "[FCM] Status: SUCCESS. System synced with EdgeOne."

@@ -1,3 +1,9 @@
+## v2.1.0
+
+- **Fix**: Switch from Symlink to Bind Mount strategy to allow non-root apps to read hosts (bypassing `/data/adb` permissions).
+- **Fix**: Use in-place updates for hosts file to preserve mount point.
+- **Docs**: Translate README to Chinese.
+
 ## v2.0.0
 
 - 架构重大升级：迁移至 Skeleton 模式。
